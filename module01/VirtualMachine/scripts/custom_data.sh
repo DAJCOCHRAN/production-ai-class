@@ -21,7 +21,7 @@ wget -O- https://apt.releases.hashicorp.com/gpg | \
 	gpg --dearmor | \
 	sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
 	# VERIFY FINGERPRINT
-gpg --no-default-keyring \ 
+gpg --no-default-keyring \
 	--keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg \
 	--fingerprint
 # Add Hashicorp Repository
@@ -47,12 +47,17 @@ sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsof
 sudo apt-get update
 sudo apt-get install -y azure-functions-core-tools-4
 
-#========================= Install Python 3.10 ===================================
-sudo add-apt-repository ppa:deadsnakes/ppa
+#========================= Install Python 3.12 (PyTorch compatible) ===============
+# Python 3.12 is the latest version with stable PyTorch support (PyTorch 2.4+)
+# NOTE: Do NOT change the default system python3 - it breaks Ubuntu system utilities
+sudo add-apt-repository -y ppa:deadsnakes/ppa
 sudo apt update
-sudo apt install -y python3.10
-sudo apt install -y python3.10-venv python3.10-distutils
-curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
+sudo apt install -y python3.12 python3.12-venv python3.12-dev
+# Install pip for Python 3.12
+curl -sS https://bootstrap.pypa.io/get-pip.py | sudo python3.12
+# Verify Python installation (use python3.12 explicitly, not python3)
+python3.12 --version
+python3.12 -m pip --version
 
 #======================= Install Docker ==========================================
 # Add Docker's official GPG key:
@@ -74,11 +79,21 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 
 
 #======================= Install Helm ==========================================
-curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
-sudo apt-get install apt-transport-https --yes
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
-sudo apt-get update
-sudo apt-get install -y helm
+# Wait for network to be fully ready (DNS resolution can fail during early boot)
+echo "Waiting for network connectivity..."
+for i in $(seq 1 30); do
+    if curl -s --max-time 5 https://baltocdn.com > /dev/null 2>&1; then
+        echo "Network is ready"
+        break
+    fi
+    echo "Waiting for network... attempt $i/30"
+    sleep 5
+done
+
+# Use the official Helm install script (more reliable than apt)
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+# Verify Helm installation
+helm version
 
 # #======================Install Kubectl ===========================================
 # # download
