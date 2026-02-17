@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      tolerations:
+        - key: "sku"
+          operator: "Equal"
+          value: "gpu"
+          effect: "NoSchedule"
+      imagePullSecrets:
+        - name: acr-secret
+      containers:
+        - name: gateway
+          image: {{ .Values.acr }}/{{ .Values.gateway.image }}:{{ .Values.gateway.tag }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.gateway.port }}
