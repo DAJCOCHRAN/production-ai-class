@@ -38,8 +38,12 @@ Once installed, open VSCode and click on the Extensions icon (icon with 4 boxes)
    Press `Ctrl + Shift + P` (`F1` also works), type and select **Remote-SSH: Connect to Host...**,
    then select `jhu-lab`. A new VS Code window opens connected to the VM.
 
-   There is no password prompt. If you get one, SSH did not find your key: check the
-   `IdentityFile` path in `~/.ssh/config`.
+   If you set a passphrase on your key, VS Code asks for it: the prompt says
+   **Enter passphrase for key** and is normal. Load the key into `ssh-agent` (see the
+   [module README](../README.md#prerequisites)) and it stops asking.
+
+   A prompt for a **password** is different and means SSH did not find your key. The VM has
+   no password to give. Check the `IdentityFile` path in `~/.ssh/config`.
 
    Open a terminal inside VS Code with ``Ctrl + ` `` (backtick). Type `exit` at any time to
    close the SSH session. To open a new VS Code session rooted at a different directory,

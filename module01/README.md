@@ -18,6 +18,38 @@ You also need an **SSH key pair**. The VM is key-only, password login is disable
 ssh-keygen -t ed25519 -f ~/.ssh/azure_lab -C "jhu-ai-lab"
 ```
 
+It asks two questions:
+
+```
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+```
+
+**Set a passphrase.** The private key is the only credential for a VM whose SSH port faces
+the internet. If your laptop is lost or the file is copied, the passphrase is what stops
+whoever has it from logging in as you. Pick something you can type from memory; it is not
+recoverable, and losing it means generating a new key pair and re-deploying.
+
+Pressing Enter twice for an empty passphrase also works, and the deployment does not care
+either way. You are trading the protection above for never being prompted.
+
+With a passphrase, SSH asks for it every time it uses the key, and VS Code Remote - SSH
+connects several times per session. Load the key into `ssh-agent` once per login and it
+stops asking:
+
+```bash
+# macOS / Linux
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/azure_lab
+```
+
+```powershell
+# Windows, in PowerShell (one-time setup, then ssh-add on each login)
+Get-Service ssh-agent | Set-Service -StartupType Automatic
+Start-Service ssh-agent
+ssh-add $HOME\.ssh\azure_lab
+```
+
 That gives you `~/.ssh/azure_lab` (your private key, which never leaves your machine) and
 `~/.ssh/azure_lab.pub` (the public half, which Terraform installs on the VM). Keep the
 default path unless you change `sshPublicKeyPath` in your variables file to match.

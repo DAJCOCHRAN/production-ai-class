@@ -175,8 +175,9 @@ Connect with your private key:
 ssh -i ~/.ssh/azure_lab azureuser@<public-ip-address>
 ```
 
-There is no password. If you are prompted for one, SSH did not find your key, check the `-i`
-path and that it matches the `sshPublicKeyPath` you deployed with.
+If you set a passphrase on the key, SSH asks for it (`Enter passphrase for key`); that is
+expected. There is no **password**. If you are prompted for one, SSH did not find your key:
+check the `-i` path and that it matches the `sshPublicKeyPath` you deployed with.
 
 ## Important Notes
 
