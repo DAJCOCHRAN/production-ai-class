@@ -14,6 +14,6 @@ output "resource_group" {
 }
 
 output "provisioning_note" {
-  value       = "Tools install in the background for 15-25 minutes after this completes. Run 'cloud-init status --wait' on the VM, then 'cat /var/log/provision-summary.txt'."
+  value       = "GIVE THE VM 20 MINUTES: all course tools install in the background after this completes. Check progress with 'cloud-init status --wait' on the VM, then confirm with 'cat /var/log/provision-summary.txt' (every line should read OK)."
   description = "Reminder that the VM is not ready the instant Terraform finishes"
 }

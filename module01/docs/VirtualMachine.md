@@ -58,7 +58,7 @@ are not in `student.tfvars.json` unless you want to override one:
 | Variable | Default | Purpose |
 |---|---|---|
 | `studentLocation` | `East US` | Azure region for every resource. |
-| `studentVMSize` | `Standard_D4s_v3` | 4 vCPU / 16 GB. The course subscription has no GPU SKUs, so this is a CPU machine all semester. |
+| `studentVMSize` | `Standard_D4s_v7` | 4 vCPU / 16 GB. The course subscription only permits the v7 generation of x86 sizes, and has no GPU SKUs, so this is a CPU machine all semester. |
 | `sshPublicKeyPath` | `~/.ssh/azure_lab.pub` | The public key installed on the VM. |
 | `allowedSSHSource` | `*` | Source IP or CIDR allowed to reach port 22. Narrow it to your own address if you can. |
 | `diskSizeGB` | `128` | OS disk size in GB. |
@@ -144,7 +144,7 @@ between sessions, deallocate it instead:
 - **Function**: Applies firewall rules to the VM's network traffic
 
 ### 8. Linux Virtual Machine (`azurerm_linux_virtual_machine`)
-- **Size**: Standard_D4s_v3 (4 vCPUs, 16 GB RAM). The AI stack does not fit comfortably in 8 GB. The course subscription has no GPU SKUs, so this is a CPU machine for the whole semester and the CPU builds of PyTorch and TensorFlow are what is installed.
+- **Size**: Standard_D4s_v7 (4 vCPUs, 16 GB RAM). The AI stack does not fit comfortably in 8 GB. The course subscription only permits the v7 x86 generation, and has no GPU SKUs, so this is a CPU machine for the whole semester and the CPU builds of PyTorch and TensorFlow are what is installed.
 - **Operating System**: Ubuntu Server 22.04 LTS (gen2)
 - **Authentication**: SSH public key only. Password authentication is disabled.
 - **Storage**: Premium SSD, size set by `diskSizeGB` (default 128 GB)
@@ -152,12 +152,7 @@ between sessions, deallocate it instead:
 
 ### 9. Custom Data Script (`custom_data.sh`)
 - **Purpose**: Installs the entire course toolchain at first boot, so nobody installs anything by hand
-- **Installs**:
-  - Base packages, and Python 3.12 alongside the system Python
-  - A `~/ai-dev` virtual environment that auto-activates on login
-  - The AI/ML stack: PyTorch, TensorFlow, scikit-learn, transformers, datasets, LangChain, the Anthropic and OpenAI clients, MLflow, Weights and Biases, DVC, and the usual data science libraries
-  - Azure CLI and Azure Functions Core Tools
-  - Docker (Module 08), and kubectl, Helm, Terraform and Node (Modules 09+)
+- **Installs**: the full list is in the [module README](../README.md#what-comes-installed-on-the-vm); the script itself is the source of truth
 - **Execution**: Runs once, as root, during first boot via cloud-init
 - **Result**: Writes a pass/fail summary to `/var/log/provision-summary.txt` and freezes the environment to `~/requirements.txt`
 

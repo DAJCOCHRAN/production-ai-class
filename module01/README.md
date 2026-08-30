@@ -78,6 +78,16 @@ IMPORTANT: that page names the RAPIDAI subscription (JH-WSE-CLASS-EP-RAPIDAI,
 (454f8f24-fd11-4fa7-8e95-8b0d80c25bb9, per `az account list` on 2026-08-30). Until
 the 604 page exists, a student following this link deploys into the wrong course's
 subscription. Do not publish this README to 604 students with the link as it stands.
+
+INSTRUCTOR SETUP, once per subscription, before any student deploys: register the
+resource providers. providers.tf sets resource_provider_registrations = "none", so
+Terraform will not do it and students cannot (needs subscription-level rights).
+  az provider register --namespace Microsoft.Network  --subscription <id>
+  az provider register --namespace Microsoft.Compute  --subscription <id>
+  az provider register --namespace Microsoft.Storage  --subscription <id>
+Skipping this fails every deployment with 409 MissingSubscriptionRegistration.
+Status: 8738094a (RAPIDAI) not yet (first apply hit the 409 on 2026-08-30).
+        454f8f24 (PRODUCTIONAI) not yet. Update these lines when each is done.
 -->
 
 **The subscription name and ID for this course are on the Azure Subscription page in
@@ -102,6 +112,68 @@ forgotten they exist.
 While you have `student.tfvars.json` open, replace `example` with your own name in every
 resource name. The subscription is shared with the whole class, so resource names have to be
 unique within it and it has to be obvious which resources are yours.
+
+## What Comes Installed on the VM
+
+You install nothing by hand. At first boot the VM runs
+[`VirtualMachine/scripts/custom_data.sh`](./VirtualMachine/scripts/custom_data.sh), which
+installs the toolchain for the whole semester - that script is the source of truth, and
+this section is the readable summary of it.
+
+**The install runs in the background for 15-25 minutes after `terraform apply` finishes.**
+A VM that looks empty right after deployment is still provisioning. Check it from a
+terminal on the VM:
+
+```bash
+cloud-init status --wait               # blocks until provisioning is done
+cat /var/log/provision-summary.txt     # every line should read OK
+```
+
+### System tools
+
+| Tool | Used from |
+|---|---|
+| `git`, `unzip`, `jq`, `build-essential`, `tmux`, `htop`, `vim` | Module 01 |
+| `python3.12` (alongside the system Python 3.10, which is deliberately left alone) | Module 01 |
+| `az` - Azure CLI | Module 01 |
+| `func` - Azure Functions Core Tools 4 | Azure Functions work |
+| `docker` with the buildx and compose plugins | Module 08 |
+| `kubectl`, `helm`, `terraform` | Module 09 |
+| `node` 22 via nvm, installed in your home directory | tooling |
+| `claude` - Claude Code CLI, in `~/.local/bin` | AI-assisted development, all modules |
+
+### Python environment
+
+A virtual environment at `~/ai-dev`, built on Python 3.12, **activated automatically on
+login** - your prompt shows `(ai-dev)`. It contains:
+
+- **AI clients:** `anthropic`, `openai`
+- **Frameworks (CPU builds - the course subscription has no GPU SKUs):** `torch`,
+  `torchvision`, `torchaudio`, `tensorflow-cpu`, `scikit-learn`
+- **Hugging Face:** `transformers`, `datasets`, `huggingface_hub`, `accelerate`, `peft`,
+  `tokenizers`, `evaluate`
+- **LangChain:** `langchain`, `langchain-anthropic`, `langchain-openai`, `langchain-community`
+- **Data science:** `numpy`, `pandas`, `scipy`, `matplotlib`, `seaborn`, `plotly`,
+  `jupyter`, `ipykernel`, `ipywidgets`
+- **MLOps:** `mlflow`, `wandb`, `dvc`
+- **Azure SDKs:** `azure-identity`, `azure-mgmt-compute`, `azure-storage-blob`
+- **Utilities:** `python-dotenv`, `tqdm`, `rich`, `httpx`, `requests`, `pydantic`
+
+### What the provisioning leaves behind
+
+| File on the VM | What it is |
+|---|---|
+| `/var/log/provision-summary.txt` | Self-check: one `OK`/`FAIL` line per tool and package, then a final `RESULT:` line |
+| `~/requirements.txt` | `pip freeze` of the exact environment you were handed |
+| `/var/log/cloud-init-output.log` | The full install log, for troubleshooting |
+
+Two things that only take effect on your **next** login after provisioning finishes:
+running `docker` without `sudo`, and the `(ai-dev)` prompt if you were logged in during the
+install. If either is missing, log out and back in before assuming something failed.
+
+**Not installed:** your API keys and your Claude sign-in. Keys are yours; put them in a
+`.env` file that git ignores, and never commit them. For Claude Code, run `claude` once on
+the VM and log in with your own account.
 
 ## Topics
 

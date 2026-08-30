@@ -10,12 +10,13 @@
 #   Result:        cat /var/log/provision-summary.txt
 #
 # Covers the whole semester, not just week 1:
-#   Module 01  Python + AI/ML stack, Azure CLI
+#   Module 01  Python + AI/ML stack, Azure CLI, Claude Code CLI
 #   Module 08  Docker
 #   Module 09  kubectl, Helm, Terraform
 #
-# NOT handled here: API keys. Those are the student's own and are created after
-# boot — see the Lab 1 page.
+# NOT handled here: API keys, and the Claude Code sign-in (the student runs `claude`
+# once and logs in with their own account). Those are the student's own and are
+# created after boot — see the Lab 1 page.
 #
 # NOTE FOR MAINTAINERS: this file is consumed with filebase64(), NOT templatefile().
 # Do not switch back to templatefile() — Terraform would try to interpolate every
@@ -219,6 +220,12 @@ sudo -u "$TARGET_USER" -H bash -lc \
 sudo -u "$TARGET_USER" -H bash -lc \
     "export NVM_DIR=\"\$HOME/.nvm\" && . \"\$NVM_DIR/nvm.sh\" && nvm install ${NODE_VERSION}"
 
+# Claude Code CLI, via the native installer, as the student so it lands in their
+# ~/.local/bin and they own it. Installing it is all we can do here: the student
+# signs in with their own account the first time they run `claude`.
+retry sudo -u "$TARGET_USER" -H bash -lc \
+    'curl -fsSL https://claude.ai/install.sh | bash'
+
 # -----------------------------------------------------------------------------
 step "10/10  Verification"
 # -----------------------------------------------------------------------------
@@ -230,6 +237,7 @@ check "kubectl"                  kubectl version --client
 check "helm"                     helm version
 check "terraform"                terraform version
 check "az"                       az version
+check "claude"                   test -x "$TARGET_HOME/.local/bin/claude"
 
 echo "" >> "$SUMMARY"
 echo "Python packages (in ~/${VENV_DIR}):" >> "$SUMMARY"

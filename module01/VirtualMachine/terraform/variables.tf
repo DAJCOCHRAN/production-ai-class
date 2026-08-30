@@ -110,8 +110,8 @@ variable "studentVMUsername" {
 
 variable "studentVMSize" {
   type        = string
-  description = "Azure VM SKU. Course baseline is 4 vCPU / 16 GB."
-  default     = "Standard_D4s_v3"
+  description = "Azure VM SKU. Course baseline is 4 vCPU / 16 GB. The course subscription only permits the v7 x86 generation (v3-v6 return SkuNotAvailable); Standard_D4as_v7 is the cheaper AMD equivalent."
+  default     = "Standard_D4s_v7"
 }
 
 variable "sshPublicKeyPath" {
