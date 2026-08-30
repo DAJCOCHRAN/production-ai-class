@@ -1,4 +1,4 @@
 resource "azurerm_resource_group" "studentRG" {
-  name      = var.studentRGName
+  name     = var.studentRGName
   location = var.studentLocation
 }

@@ -1,0 +1,10 @@
+# The cloud-init provisioning script is shipped to Azure byte-for-byte via filebase64().
+# A Windows clone with core.autocrlf=true (the Git for Windows installer default) would
+# rewrite it to CRLF, the shebang would become "#!/bin/bash\r", and every student's VM
+# would boot with no toolchain. Force LF regardless of the cloning machine's settings.
+*.sh text eol=lf
+
+# Terraform and its inputs are read by tooling, not by Windows editors. Keep them LF too.
+*.tf text eol=lf
+*.tfvars text eol=lf
+*.tfvars.json text eol=lf
