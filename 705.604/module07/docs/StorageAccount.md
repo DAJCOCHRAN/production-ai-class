@@ -12,7 +12,7 @@ In this guide you will use Terraform to deploy an Azure Storage Account with two
 Navigate to the Terraform directory:
 
 ```bash
-cd module07/terraform
+cd 705.604/module07/terraform
 ```
 
 Open `student.tfvars.json` and replace the placeholder values with your own:
@@ -68,7 +68,7 @@ Or retrieve it manually and paste it into the file:
 terraform output -raw storage_account_primary_connection_string
 ```
 
-Then create `module07/ai-training-example/connectionstring.txt` and paste the value as the only line in the file.
+Then create `705.604/module07/ai-training-example/connectionstring.txt` and paste the value as the only line in the file.
 
 > **Important**: `connectionstring.txt` is included in `.gitignore` and should never be committed to source control. It contains your storage account access key.
 

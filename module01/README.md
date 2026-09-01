@@ -66,18 +66,9 @@ which ships with a placeholder:
 ```
 
 <!--
-TODO(instructor): this points at the rapid-ai-class Canvas course - course 135509,
-Module 0, page slug `azure-subscription` (page id 3444190). Repoint it at the 604
-course's own Module 0 subscription page once that course exists. Also confirm the
-135509 page is actually published before students are sent here: as of 2026-08-29
-every item in that Module 0 was still unpublished, so this link 404s for students
-until the module is released.
-
-IMPORTANT: that page names the RAPIDAI subscription (JH-WSE-CLASS-EP-RAPIDAI,
-8738094a-...). This course deploys into JH-WSE-CLASS-EP-PRODUCTIONAI
-(454f8f24-fd11-4fa7-8e95-8b0d80c25bb9, per `az account list` on 2026-08-30). Until
-the 604 page exists, a student following this link deploys into the wrong course's
-subscription. Do not publish this README to 604 students with the link as it stands.
+NOTE(instructor): both Azure Subscription pages exist but were unpublished as of
+2026-08-31 (604: course 135329, page id 3447899; 704: course 135509, page id 3444190),
+so the links below 404 for students until each course's Module 0 is released.
 
 INSTRUCTOR SETUP, once per subscription, before any student deploys: register the
 resource providers. providers.tf sets resource_provider_registrations = "none", so
@@ -90,13 +81,18 @@ Status: 8738094a (RAPIDAI) not yet (first apply hit the 409 on 2026-08-30).
         454f8f24 (PRODUCTIONAI) not yet. Update these lines when each is done.
 -->
 
-**The subscription name and ID for this course are on the Azure Subscription page in
-Module 0 on Canvas:**
+**The subscription name and ID for your course are on the Azure Subscription page in
+Module 0 on Canvas.** This repository serves two courses that deploy into two different
+subscriptions, so use the page for the course you are enrolled in:
 
-<https://jhu.instructure.com/courses/135509/pages/azure-subscription>
+| Your course | Subscription page | Subscription name |
+|---|---|---|
+| EN.705.604 (Production AI) | <https://jhu.instructure.com/courses/135329/pages/azure-subscription> | `JH-WSE-CLASS-EP-PRODUCTIONAI` |
+| EN.705.704 (Rapid AI Systems) | <https://jhu.instructure.com/courses/135509/pages/azure-subscription> | `JH-WSE-CLASS-EP-RAPIDAI` |
 
-Copy the subscription ID from that page into `student.tfvars.json`, then confirm your Azure
-CLI is pointed at the same subscription before you run Terraform:
+Copy the subscription ID from your course's page into `student.tfvars.json`, then confirm
+your Azure CLI is pointed at the same subscription before you run Terraform. The
+subscription name from `az account show` must match the name in the table for your course:
 
 ```bash
 az login

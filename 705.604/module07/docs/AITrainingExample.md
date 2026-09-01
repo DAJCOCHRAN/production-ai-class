@@ -22,7 +22,7 @@ This pattern is common in production AI systems where training data lives in clo
 Navigate to the example directory:
 
 ```bash
-cd module07/ai-training-example
+cd 705.604/module07/ai-training-example
 ```
 
 Create and activate a virtual environment:
@@ -56,7 +56,7 @@ cd ../ai-training-example
 Or create the file manually — paste your connection string as the only line:
 
 ```
-module07/ai-training-example/connectionstring.txt
+705.604/module07/ai-training-example/connectionstring.txt
 ```
 
 > **Important**: This file contains your storage account access key. It is included in `.gitignore` and should never be committed to source control.

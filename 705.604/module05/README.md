@@ -42,7 +42,7 @@ az acr login --name <ACR_NAME>
 ### Build and push the gpu-app image
 
 ```bash
-cd module05/gpu-app
+cd 705.604/module05/gpu-app
 docker build -t <ACR_DOMAIN_NAME>/gpu-app:<TAG> .
 docker push <ACR_DOMAIN_NAME>/gpu-app:<TAG>
 ```
@@ -50,7 +50,7 @@ docker push <ACR_DOMAIN_NAME>/gpu-app:<TAG>
 ### Build and push the gateway-service image
 
 ```bash
-cd module05/gateway-service
+cd 705.604/module05/gateway-service
 docker build -t <ACR_DOMAIN_NAME>/gateway-service:<TAG> .
 docker push <ACR_DOMAIN_NAME>/gateway-service:<TAG>
 ```
@@ -64,7 +64,7 @@ These resources configure GPU time-slicing and the NVIDIA device plugin on your 
 Navigate to the gpu-kube-resources directory:
 
 ```bash
-cd module05/gpu-kube-resources
+cd 705.604/module05/gpu-kube-resources
 ```
 
 ### Deploy the ConfigMap (required for the device plugin)
@@ -116,7 +116,7 @@ myGPUApp:
 ### Install the Helm chart
 
 ```bash
-cd module05/helm-chart
+cd 705.604/module05/helm-chart
 helm install mychart .
 ```
 
