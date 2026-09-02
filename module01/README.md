@@ -73,12 +73,19 @@ so the links below 404 for students until each course's Module 0 is released.
 INSTRUCTOR SETUP, once per subscription, before any student deploys: register the
 resource providers. providers.tf sets resource_provider_registrations = "none", so
 Terraform will not do it and students cannot (needs subscription-level rights).
-  az provider register --namespace Microsoft.Network  --subscription <id>
-  az provider register --namespace Microsoft.Compute  --subscription <id>
-  az provider register --namespace Microsoft.Storage  --subscription <id>
-Skipping this fails every deployment with 409 MissingSubscriptionRegistration.
-Status: 8738094a (RAPIDAI) not yet (first apply hit the 409 on 2026-08-30).
-        454f8f24 (PRODUCTIONAI) not yet. Update these lines when each is done.
+  az provider register --namespace Microsoft.Network    --subscription <id>
+  az provider register --namespace Microsoft.Compute    --subscription <id>
+  az provider register --namespace Microsoft.Storage    --subscription <id>
+  az provider register --namespace Microsoft.DevTestLab --subscription <id>
+Microsoft.DevTestLab is for the VM auto-shutdown schedule (autoshutdown.tf), added
+2026-09-01; a subscription registered before then needs that one added on its own.
+Skipping any of these fails every deployment with 409 MissingSubscriptionRegistration.
+
+student.tfvars.json is tracked in git. Restore the placeholders in it before committing,
+so students never receive a real subscription ID or someone else's resource names.
+Status (checked 2026-09-01): all four namespaces show Registered on both
+        8738094a (RAPIDAI) and 454f8f24 (PRODUCTIONAI). Microsoft.DevTestLab was
+        registered on 2026-09-01 after an apply on RAPIDAI hit the 409 for it.
 -->
 
 **The subscription name and ID for your course are on the Azure Subscription page in
@@ -105,9 +112,97 @@ Running `terraform apply` against the wrong subscription is the expensive kind o
 the resources land somewhere nobody is watching, and they keep billing after you have
 forgotten they exist.
 
-While you have `student.tfvars.json` open, replace `example` with your own name in every
-resource name. The subscription is shared with the whole class, so resource names have to be
-unique within it and it has to be obvious which resources are yours.
+## Editing student.tfvars.json
+
+[`VirtualMachine/terraform/student.tfvars.json`](./VirtualMachine/terraform/student.tfvars.json)
+is the only file you edit to deploy. Terraform validates every value in it and refuses to
+plan until the placeholders are gone, naming the exact key that is still wrong.
+
+| Key | Ships as | Change it to |
+|---|---|---|
+| `studentSubscriptionId` | `REPLACE-WITH-YOUR-SUBSCRIPTION-ID` | The subscription ID from your course's Azure Subscription page, see [above](#your-azure-subscription). |
+| `studentRGName`, `studentVNETName`, `studentIPName`, `studentNSGName`, `studentNICName`, `studentVMName`, `studentVMDiskName` | `dev-jhu-example-...-use` | The same string with `example` replaced by your name or initials. The subscription is shared with the whole class, so names must be unique and it must be obvious which resources are yours. |
+| `studentVMUsername` | `azureuser` | Leave it. |
+| `autoShutdownTime` | `REPLACE-WITH-HHMM` | The time of day the VM shuts itself down, every day. 24-hour clock, `2300` for 11 PM. Eastern time unless you add `autoShutdownTimezone`. |
+| `autoShutdownNotificationEmail` | `""` | Optional. Your email address if you want a warning 30 minutes before each shutdown, with a link to postpone it. Leave `""` for no email. |
+
+A completed file, for a student named J. Smith who wants the VM off at 11 PM Eastern:
+
+```json
+{
+	"_comment": "...leave this line as it is...",
+
+	"studentSubscriptionId": "12345678-abcd-4ef0-9876-0123456789ab",
+
+	"studentRGName": "dev-jhu-jsmith-rg-use",
+	"studentVNETName": "dev-jhu-jsmith-vnet-use",
+	"studentIPName": "dev-jhu-jsmith-ip-use",
+	"studentNSGName": "dev-jhu-jsmith-nsg-use",
+	"studentNICName": "dev-jhu-jsmith-nic-use",
+	"studentVMName": "dev-jhu-jsmith-linuxvm-use",
+	"studentVMDiskName": "dev-jhu-jsmith-linuxvmdisk-use",
+
+	"studentVMUsername": "azureuser",
+
+	"autoShutdownTime": "2300",
+	"autoShutdownNotificationEmail": "jsmith@jh.edu"
+}
+```
+
+The `_comment` line is only a note. Leave it or delete it; Terraform ignores it either way.
+
+Every other setting has a default and is not in the file. Add a key only if you want to
+override it. The full list with defaults is in the
+[deployment guide](./docs/VirtualMachine.md#1-configure-variables):
+
+- `autoShutdownTimezone`, default `Eastern Standard Time`. Use a Windows time-zone name such
+  as `Pacific Standard Time` or `UTC` if you are not on Eastern time.
+- `autoShutdownEnabled`, default `true`. Set it to `false` to switch the daily shutdown off.
+- `studentVMSize`, `diskSizeGB`, `allowedSSHSource`, `sshPublicKeyPath`: machine size, disk
+  size, who can reach port 22, and where your public key is.
+
+About the auto-shutdown: at `autoShutdownTime` every day Azure deallocates the VM, so a
+machine you forgot about stops billing for compute by the next morning. Nothing is deleted,
+and the VM never starts itself; the
+[deployment guide](./docs/VirtualMachine.md#3-auto-shutdown) has the start command. Pick a
+time after you would normally have stopped for the night.
+
+### Already deployed? Add the auto-shutdown to your existing VM
+
+If you ran `terraform apply` before the auto-shutdown existed, your VM has no schedule yet.
+Adding one does not touch the VM:
+
+1. Save a copy of your current `student.tfvars.json` values somewhere, then `git pull` in
+   the cloned repository to pick up the new Terraform files.
+2. Open your `student.tfvars.json` and add the two new keys after `studentVMUsername`. Note
+   the comma that now ends the `studentVMUsername` line:
+
+   ```json
+   "studentVMUsername": "azureuser",
+
+   "autoShutdownTime": "2300",
+   "autoShutdownNotificationEmail": ""
+   ```
+
+3. Plan, from `VirtualMachine/terraform`:
+
+       $ terraform plan -var-file="student.tfvars.json"
+
+   The last line must read exactly **`Plan: 1 to add, 0 to change, 0 to destroy.`** and the
+   one addition is `azurerm_dev_test_global_vm_shutdown_schedule`. Anything else means a
+   name in the file no longer matches what you deployed. Stop, fix the file, and plan again.
+   Never apply a plan that destroys or replaces anything.
+4. Apply:
+
+       $ terraform apply -var-file="student.tfvars.json"
+
+   The VM keeps running; only the schedule is created.
+5. If the plan fails with `409 MissingSubscriptionRegistration` mentioning
+   `Microsoft.DevTestLab`, the subscription has not been set up for this yet. You cannot fix
+   that yourself; tell the instructor.
+
+To change the time later, edit `autoShutdownTime` and run `terraform apply` again. The plan
+then shows `0 to add, 1 to change, 0 to destroy`.
 
 ## What Comes Installed on the VM
 

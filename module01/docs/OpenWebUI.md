@@ -89,6 +89,9 @@ nothing about the VM is reachable from the internet that was not reachable befor
   the two named volumes. Your 128 GB OS disk has room for several models.
 - An idle container costs nothing extra. The VM bills the same whether or not it is running.
   Deallocate the VM between sessions exactly as before; the container comes back with it.
+- The daily auto-shutdown (`autoShutdownTime`) applies here too. A model pull still running at
+  that time is cut off; start big pulls well before it, or use the postpone link in the
+  warning email if you set `autoShutdownNotificationEmail`.
 - `docker system df` shows what the images and volumes are using.
 
 ## 5. Stop or remove it
