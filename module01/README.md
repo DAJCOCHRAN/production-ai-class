@@ -184,7 +184,12 @@ Adding one does not touch the VM:
    "autoShutdownNotificationEmail": ""
    ```
 
-3. Plan, from `VirtualMachine/terraform`:
+3. Initialize, from `VirtualMachine/terraform`. This is safe to repeat and does nothing
+   if the directory is already initialized:
+
+       $ terraform init
+
+4. Plan:
 
        $ terraform plan -var-file="student.tfvars.json"
 
@@ -192,12 +197,12 @@ Adding one does not touch the VM:
    one addition is `azurerm_dev_test_global_vm_shutdown_schedule`. Anything else means a
    name in the file no longer matches what you deployed. Stop, fix the file, and plan again.
    Never apply a plan that destroys or replaces anything.
-4. Apply:
+5. Apply:
 
        $ terraform apply -var-file="student.tfvars.json"
 
    The VM keeps running; only the schedule is created.
-5. If the plan fails with `409 MissingSubscriptionRegistration` mentioning
+6. If the plan fails with `409 MissingSubscriptionRegistration` mentioning
    `Microsoft.DevTestLab`, the subscription has not been set up for this yet. You cannot fix
    that yourself; tell the instructor.
 
