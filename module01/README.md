@@ -167,47 +167,40 @@ and the VM never starts itself; the
 [deployment guide](./docs/VirtualMachine.md#3-auto-shutdown) has the start command. Pick a
 time after you would normally have stopped for the night.
 
-### Already deployed? Add the auto-shutdown to your existing VM
+## Deploy the VM
 
-If you ran `terraform apply` before the auto-shutdown existed, your VM has no schedule yet.
-Adding one does not touch the VM:
+Run these from the terminal in VS Code, in the repository you cloned. Every command must
+succeed before you move to the next one.
 
-1. Save a copy of your current `student.tfvars.json` values somewhere, then `git pull` in
-   the cloned repository to pick up the new Terraform files.
-2. Open your `student.tfvars.json` and add the two new keys after `studentVMUsername`. Note
-   the comma that now ends the `studentVMUsername` line:
+1. Change into the Terraform directory:
 
-   ```json
-   "studentVMUsername": "azureuser",
+       $ cd VirtualMachine/terraform
 
-   "autoShutdownTime": "2300",
-   "autoShutdownNotificationEmail": ""
-   ```
-
-3. Initialize, from `VirtualMachine/terraform`. This is safe to repeat and does nothing
-   if the directory is already initialized:
+2. Initialize. This downloads the Azure provider and only needs to run once, but it is safe
+   to repeat:
 
        $ terraform init
 
-4. Plan:
+3. Plan. Terraform reads `student.tfvars.json`, compares it with what exists in your
+   subscription, and prints what it would create, without creating anything:
 
        $ terraform plan -var-file="student.tfvars.json"
 
-   The last line must read exactly **`Plan: 1 to add, 0 to change, 0 to destroy.`** and the
-   one addition is `azurerm_dev_test_global_vm_shutdown_schedule`. Anything else means a
-   name in the file no longer matches what you deployed. Stop, fix the file, and plan again.
-   Never apply a plan that destroys or replaces anything.
-5. Apply:
+   Read the output. Each resource shows its name, so check that the names are yours and
+   not `example`. The last line must read exactly
+   **`Plan: 9 to add, 0 to change, 0 to destroy.`** If the plan fails instead, the message
+   names the key in `student.tfvars.json` that is still wrong; fix it and plan again.
+4. Apply. Terraform shows the same plan once more and asks for confirmation. Type `yes`:
 
        $ terraform apply -var-file="student.tfvars.json"
 
-   The VM keeps running; only the schedule is created.
-6. If the plan fails with `409 MissingSubscriptionRegistration` mentioning
-   `Microsoft.DevTestLab`, the subscription has not been set up for this yet. You cannot fix
-   that yourself; tell the instructor.
+   It takes a few minutes. When it finishes, Terraform prints your VM's public IP and a
+   ready-to-paste SSH command. Save both; you need them for
+   [VS Code setup](./docs/VSCodeSetup.md).
 
-To change the time later, edit `autoShutdownTime` and run `terraform apply` again. The plan
-then shows `0 to add, 1 to change, 0 to destroy`.
+Running `terraform apply` again later is how you change the deployment, for example the
+auto-shutdown time. The plan then shows `0 to add, 1 to change, 0 to destroy`; anything that
+destroys or replaces a resource deserves a careful look before you type `yes`.
 
 ## What Comes Installed on the VM
 
