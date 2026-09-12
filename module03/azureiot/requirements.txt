@@ -1,0 +1,4 @@
+azure-iot-device
+azure-eventhub
+requests
+python-dotenv
