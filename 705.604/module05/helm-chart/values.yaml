@@ -1,16 +1,16 @@
-acr: ACR_DOMAIN_NAME # Your ACR Domain name here
+# Your registry login server, for example devjhuexampleacruse.azurecr.io
+acr: ACR_DOMAIN_NAME
 
-# one pod with one container
+# One gateway pod, exposed outside the cluster by a LoadBalancer Service on port 80.
 gateway:
   image: gateway-service
   tag: GATEWAY_SERVICE_TAG
   port: 5000
 
-# we will make 1 pod with 3 copies of the gpuApp as containers
-
-myGPUApp: # container
-  image: gpu-app
-  tag: GPU_APP_TAG
-  replicas: 1
+# One worker Deployment. Every replica is a separate pod, and the headless Service
+# "worker-app" resolves to all of them, so the gateway fans out to exactly this many.
+worker:
+  image: worker-app
+  tag: WORKER_APP_TAG
   port: 8000
-  
+  replicas: 3

@@ -1,4 +1,4 @@
-# METADATA ABOUT YOUR HELM CHART
 apiVersion: v2
-name: mychart
+name: fanout
+description: A gateway that fans a message out to every worker pod behind a headless Service
 version: 1.0.0

@@ -1,0 +1,14 @@
+# clusterIP: None makes this a headless Service. DNS for "worker-app" then returns one
+# address per ready pod instead of one virtual IP, which is how the gateway finds them all.
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-app
+spec:
+  clusterIP: None
+  selector:
+    app: worker-app
+  ports:
+    - protocol: TCP
+      port: {{ .Values.worker.port }}
+      targetPort: {{ .Values.worker.port }}
