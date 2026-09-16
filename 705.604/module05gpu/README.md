@@ -1,4 +1,8 @@
-# Module 5 - GPU Workloads on AKS
+# Module 05 (GPU variant): GPU Workloads on AKS
+
+This is the GPU version of Module 5, kept for reference and for when GPU compute is
+available. The course assignment uses the CPU version in `705.604/module05`, which runs the
+message fan-out system on a CPU-only cluster. Nothing here is required for the assignment.
 
 ## Overview
 
@@ -42,7 +46,7 @@ az acr login --name <ACR_NAME>
 ### Build and push the gpu-app image
 
 ```bash
-cd 705.604/module05/gpu-app
+cd 705.604/module05gpu/gpu-app
 docker build -t <ACR_DOMAIN_NAME>/gpu-app:<TAG> .
 docker push <ACR_DOMAIN_NAME>/gpu-app:<TAG>
 ```
@@ -50,7 +54,7 @@ docker push <ACR_DOMAIN_NAME>/gpu-app:<TAG>
 ### Build and push the gateway-service image
 
 ```bash
-cd 705.604/module05/gateway-service
+cd 705.604/module05gpu/gateway-service
 docker build -t <ACR_DOMAIN_NAME>/gateway-service:<TAG> .
 docker push <ACR_DOMAIN_NAME>/gateway-service:<TAG>
 ```
@@ -64,7 +68,7 @@ These resources configure GPU time-slicing and the NVIDIA device plugin on your 
 Navigate to the gpu-kube-resources directory:
 
 ```bash
-cd 705.604/module05/gpu-kube-resources
+cd 705.604/module05gpu/gpu-kube-resources
 ```
 
 ### Deploy the ConfigMap (required for the device plugin)
@@ -116,7 +120,7 @@ myGPUApp:
 ### Install the Helm chart
 
 ```bash
-cd 705.604/module05/helm-chart
+cd 705.604/module05gpu/helm-chart
 helm install mychart .
 ```
 

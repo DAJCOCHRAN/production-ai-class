@@ -4,10 +4,10 @@
 You must be logged into the AKS cluster, check the login instructions from AKS in azure portal or check the video
 
 
-Navigate to the kube-resources directory:
+Navigate to the gpu-kube-resources directory:
 
 ```bash
-cd kube-resources
+cd 705.604/module05gpu/gpu-kube-resources
 ```
 
 ## Steps
