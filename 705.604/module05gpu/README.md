@@ -21,6 +21,25 @@ In this module you will deploy a GPU-enabled AKS cluster, publish your applicati
 
 Follow the instructions in the **Module 5 video** to deploy your AKS cluster with GPU node pools using the Azure CLI or the provided IaC templates.
 
+The GPU node pool needs a GPU VM size, which is a placeholder here: replace `<GPU_VM_SIZE>` with a
+GPU SKU your subscription has quota for (an NVIDIA `Standard_NC*`-family size). Check quota with
+`az vm list-usage --location <REGION> -o table` before you deploy. The pool must be tainted
+`sku=gpu:NoSchedule` and labeled `sku=gpu`, which is what the Helm chart's node selectors and
+tolerations expect. For example, with the Azure CLI:
+
+```bash
+az aks nodepool add \
+  --resource-group <RESOURCE_GROUP> \
+  --cluster-name <AKS_CLUSTER_NAME> \
+  --name gpunp \
+  --node-vm-size <GPU_VM_SIZE> \
+  --node-count 1 \
+  --mode User \
+  --node-taints sku=gpu:NoSchedule \
+  --labels sku=gpu \
+  --gpu-driver Install
+```
+
 Once the cluster is deployed, connect to it:
 
 ```bash
